@@ -34,6 +34,8 @@ averageFileSize = sum(sizes)/length(sizes)
 
 [maxFileSize, ~] = max(sizes)
 
+MAXXML = maxFileSize;
+
 % convert to bits
 averageFileSize = averageFileSize*8;
 
@@ -76,15 +78,38 @@ AddLabel(x, maxFileSize, 5.6,...
  
  tripFolders = dir(dataDir);
 
+% add plaintext sizes
+paths = dir('plaintext');
+sizes = zeros([1, length(paths)], 'double');
+for i = 1:length(paths)
+    fileInfo =paths(i);
+    sizes(i) = fileInfo.bytes;
+end
+[maxPlainText, ~] = max(sizes);
+MAXPLAIN = maxPlainText;
+maxPlainText = maxPlainText*8;
+maxPlainText = maxPlainText./[x.*1e6];
+p3 = plot(x, maxPlainText);
 
+p3.LineWidth = 2;
+p3.Color = 'c';
+
+p3.Marker = '*';
+p3.MarkerSize = 7;
+p3.MarkerIndices = FindIdx(x, [0.85, 1, 5.6]);
 
 title('Response Times vs. Download Speed');
 xlabel('Download Speed (Mbps)') % x-axis label
 ylabel('Response Download Time (s)') % y-axis label
-legend('Avg (95 kb)','Max (165kb)', 'Proposed (15kb)')
+legend('Avg XML (95 kb)','Max XML (165kb)', 'Max Plaintext (28kb)')
 
- print('ResponseGraphXML.png','-dpng','-r1200');% save image as foo.png
+print('ResponseGraphXML.png','-dpng','-r300');% save image as foo.png
 
+hold off;
+%% size comparison
+
+bar([MAXXML/1e3 MAXPLAIN/1e3]);
+ylabel('Response Data Size (kb)') % y-axis label
 %% functions
 function [] = AddLabel(x, y, xval, msg, offset)
     % Add a label at a certain point to a graph
